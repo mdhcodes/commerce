@@ -120,3 +120,19 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+# FIX DJANGO UPGRADE ERROR
+# https://dev.to/weplayinternet/upgrading-to-django-3-2-and-fixing-defaultautofield-warnings-518n
+
+# WARNINGS:
+# auctions.User: (models.W042) Auto-created primary key used when not defining a primary key type, by default 'django.db.models.AutoField'.
+    # HINT: Configure the DEFAULT_AUTO_FIELD setting or the AuctionsConfig.default_auto_field attribute to point to a subclass of AutoField, e.g. 'django.db.models.BigAutoField'.
+
+# Migrations
+# Create and run migrations to use new requirements BigAutoField.
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Then run the following commands/migration to update the database to use new field type.
+# python manage.py makemigrations auctions
+# python manage.py sqlmigrate auctions 0001 <migration_number>
