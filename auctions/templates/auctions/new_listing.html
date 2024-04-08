@@ -1,0 +1,29 @@
+{% extends "auctions/layout.html" %}
+
+
+{% comment %} 
+Create Listing: Users may create a new listing. 
+They will be able to enter the listing title, description, category, image, and starting bid. 
+Users should also optionally be able to provide a URL for an image for the listing.
+{% endcomment %}
+
+{% block title %}
+    {{ title }}
+{% endblock %}
+
+{% block body %}
+    <p style="color:rgb(173, 36, 36)">{{ message }}</p>
+    <h1>Create a New Listing</h1>
+    {% comment %} 
+    Requirements for uploading image file.
+    https://docs.djangoproject.com/en/5.0/ref/forms/api/#binding-uploaded-files-to-a-form 
+    <form enctype="multipart/form-data" method="post" action="/foo/"> 
+    {% endcomment %}
+    <form enctype="multipart/form-data" action="{% url 'new_listing' %}" method="post">   
+        {% csrf_token %}     
+        {{ form.as_p }} {% comment %} .as_p means the form input will display as a paragraph. {% endcomment %}
+        <input type="submit" value="Save">
+    </form>
+
+{% endblock %}
+

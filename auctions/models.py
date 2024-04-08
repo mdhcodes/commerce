@@ -32,7 +32,11 @@ class Listing(models.Model):
     # ImageField requires the Pillow library. # https://pillow.readthedocs.io/en/latest/installation/basic-installation.html
     # https://www.geeksforgeeks.org/imagefield-django-models/
     # image = models.ImageField(upload_to=None, height_field=None, width_field=None, max_length=100)
-    image = models.ImageField(upload_to="images/") # blank=True - field may be empty.    
+    image = models.ImageField(upload_to="images/") # blank=True - field may be empty. # Image files are uploaded to the media/images directory through the admin account. However, image files are not uploaded (to this directory) from the user.
+
+    # https://cs50.harvard.edu/web/2020/projects/2/commerce/#specification
+    # CS50 specifications indicate that "users should also optionally be able to provide a URL for an image for the listing.
+
 
     # https://stackoverflow.com/questions/1139393/what-is-the-best-django-model-field-to-use-to-represent-a-us-dollar-amount
     # https://dev.to/koladev/django-tip-use-decimalfield-for-money-3f63
