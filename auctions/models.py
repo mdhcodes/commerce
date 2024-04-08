@@ -46,3 +46,8 @@ class Listing(models.Model):
     # "It is a good practice to name the many-to-one field with the same name as the related model, lowercase."
     # "Many-to-one relations are defined using ForeignKey field of django.db.models." A user can have multiple listings but a listing can't have multipls users.
     createdBy = models.ForeignKey(User, on_delete=models.CASCADE) # If a user is deleted, all listings posted by that user are deleted as well. 
+
+    # Instructions to convert Listing object into a string.
+    # https://cs50.harvard.edu/web/2020/notes/4/#shell
+    def __str__(self):
+        return f"{self.title} / {self.category}"
