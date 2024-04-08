@@ -10,7 +10,19 @@ from .forms import CreateListingForm
 
 
 def index(request):
-    return render(request, "auctions/index.html")
+
+    """
+    Active Listings: 
+    The default/index route should allow users to view all of the currently active auction listings. 
+    For each active listing, the page will display the title, description, current price, and photo (if one exists for the listing).
+    """
+
+    all_listings = Listing.objects.all()
+
+    context = {
+       "all_listings": all_listings
+    }
+    return render(request, "auctions/index.html", context)
 
 
 def login_view(request):

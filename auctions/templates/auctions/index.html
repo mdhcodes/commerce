@@ -5,5 +5,27 @@
 
     <p>{{ message }}</p>{% comment %} If new listing is created successfully, display message. {% endcomment %}
 
-    TODO
+    {% comment %} 
+    Active Listings: 
+    The default/index route should allow users to view all of the currently active auction listings. 
+    For each active listing, the page will display the title, description, current price, category, and photo (if one exists for the listing).
+    {% endcomment %}
+
+    <ul>        
+        {% for listing in all_listings %}
+
+            <!-- <li>{{ listing }}</li> -->
+            
+            <li>Title: {{ listing.title }}</li>
+            <li>Description: {{ listing.description }}</li>
+            <li>Bid: {{ listing.bid }}</li>
+            <li>Category: {{ listing.category }}</li>
+            <li><img src="{{ listing.image }}"></li>{% comment %} Empty square image holder displayed {% endcomment %}
+            {% comment %}<li>{{ listing.image.url }}</li>{% endcomment %}{% comment %} VALUE ERROR - NO FILE ASSOCIATED WITH IT {% endcomment %}
+            {% comment %}<li><img src="{{ listing.image.url }}"></li>{% endcomment %}{% comment %} VALUE ERROR - NO FILE ASSOCIATED WITH IT {% endcomment %}
+
+        {% endfor %}
+    </ul>
+
+
 {% endblock %}
