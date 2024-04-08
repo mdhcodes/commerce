@@ -7,7 +7,7 @@ from django.contrib import admin
 # Also, register the model in the app’s admin.py:
 
 from django.contrib.auth.admin import UserAdmin
-from .models import User, Listings, Bids, Comments
+from .models import User, Listing
 
 # https://cs50.harvard.edu/web/2020/notes/4/#django-admin
 # To customize the admin app interface, create a new class here.
@@ -23,17 +23,14 @@ from .models import User, Listings, Bids, Comments
 # Superuser created successfully.
 
 # https://docs.djangoproject.com/en/5.0/ref/contrib/admin/#modeladmin-objects
-class ListingsAdmin(admin.ModelAdmin):
+class UserAdmin(admin.ModelAdmin):
     pass
 
-class BidsAdmin(admin.ModelAdmin):
-    pass
-
-class CommentsAdmin(admin.ModelAdmin):
+class ListingAdmin(admin.ModelAdmin):
     pass
 
 
+# https://docs.djangoproject.com/en/5.0/topics/auth/customizing/#using-a-custom-user-model-when-starting-a-project
+# Also, register the (User) model in the app’s admin.py.
 admin.site.register(User, UserAdmin)
-admin.site.register(Listings, ListingsAdmin)
-admin.site.register(Bids, BidsAdmin)
-admin.site.register(Comments, CommentsAdmin)
+admin.site.register(Listing, ListingAdmin)

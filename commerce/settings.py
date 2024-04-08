@@ -81,6 +81,9 @@ DATABASES = {
     }
 }
 
+
+# https://docs.djangoproject.com/en/5.0/topics/auth/customizing/#using-a-custom-user-model-when-starting-a-project
+# Don’t forget to point AUTH_USER_MODEL to it (the user model). Do this before creating any migrations or running manage.py migrate for the first time.
 AUTH_USER_MODEL = 'auctions.User'
 
 # Password validation
@@ -136,3 +139,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Then run the following commands/migration to update the database to use new field type.
 # python manage.py makemigrations auctions
 # python manage.py sqlmigrate auctions 0001 <migration_number>
+
+
+# https://www.geeksforgeeks.org/python-uploading-images-in-django/
+MEDIA_ROOT =  os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
