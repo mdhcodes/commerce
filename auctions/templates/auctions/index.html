@@ -14,9 +14,8 @@
     <ul>        
         {% for listing in all_listings %}
 
-            <!-- <li>{{ listing }}</li> -->
-            
-            <li>Title: {{ listing.title }}</li>
+            <!-- Listing Page: Clicking on a listing should take users to a page specific to that listing.  -->            
+            <li><a href="{% url 'listing' listing.id %}">Title: {{ listing.title }}</a></li>
             <li>Description: {{ listing.description }}</li>
             <li>Bid: {{ listing.bid }}</li>
             <li>Category: {{ listing.category }}</li>

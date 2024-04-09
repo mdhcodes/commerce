@@ -102,6 +102,7 @@ def new_listing(request):
         description = listing_data["description"].value()
         bid = listing_data["bid"].value()
         category = listing_data["category"].value()
+        # https://pylessons.com/django-images # REVIEW THIS TUTORIAL!!!!!
         # image
         user = user_name
 
@@ -131,3 +132,28 @@ def new_listing(request):
             "title": title,
             "form": CreateListingForm()
         })
+    
+
+"""
+Listing Page: Clicking on a listing should take users to a page specific to that listing. 
+On that page, users should be able to view all details about the listing, including the current price for the listing.
+"""
+
+def listing(request, id):
+    
+    item_id = id
+    # print("Item id:", item_id)
+    # print("ID Type", type(item_id)) # <class 'int'>
+
+    # Retrieve a specific row in the database table Listings.
+    # https://www.w3schools.com/django/django_queryset_get.php
+    listing_data = Listing.objects.filter(id=item_id).values()
+    print("Listing Data:", listing_data)
+
+    context = {
+        "listing_data": listing_data,
+        "item_id": item_id
+    }
+    
+    return render(request, "auctions/listing.html", context)
+

@@ -1,0 +1,33 @@
+{% extends "auctions/layout.html" %}
+
+{% comment %} 
+Listing Page: 
+    If the user is signed in:
+        They may add the item to their “Watchlist.” If the item is already on the watchlist, the user should be able to remove it.
+        They may bid on the item. The bid must be at least as large as the starting bid, and must be greater than any other bids that have been placed (if any). If the bid doesn’t meet those criteria, the user should be presented with an error.
+        If this user created the listing, they may “close” the auction from this page, which makes the highest bidder the winner of the auction and makes the listing no longer active.
+        If this listing is closed and this user won the auction, this page should say so.
+        They may add comments to the listing page. The listing page should display all comments that have been made on the listing.
+{% endcomment %}
+
+
+{% block body %}
+
+    <p style="color: green;">{{ message }}</p>
+
+    <ul>
+
+        {% for data in listing_data %}
+            {% comment %} Users are able to view all details about the listing including the current price. {% endcomment %}
+            <li>Listing ID: {{ data.id }}</li>
+            <li>Title: {{ data.title }}</li>
+            <li>Description: {{ data.description }}</li>
+            <li>Bid: {{ data.bid }}</li>
+            <li>Category: {{ data.category }}</li>
+            <li>Image: {{ data.image }}</li>
+            <li>Created by: {{ data.createdBy_id }}</li>
+        {% endfor %}
+
+    </ul>
+
+{% endblock %}

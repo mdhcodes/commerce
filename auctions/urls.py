@@ -8,5 +8,7 @@ urlpatterns = [
     path("logout", views.logout_view, name="logout"),
     path("register", views.register, name="register"),
     # Add path to create a new listing.
-    path("new_listing", views.new_listing, name="new_listing")
+    path("new_listing", views.new_listing, name="new_listing"),
+    # Add path to listing page.
+    path("listing/<int:id>", views.listing, name="listing"),
 ]
