@@ -43,13 +43,18 @@ class Listing(models.Model):
     # https://www.geeksforgeeks.org/decimalfield-django-models/
     bid = models.DecimalField(max_digits=19, decimal_places=2, default=00.00) # "Stores numbers up to one billion with a resolution of 4 decimal places."
 
-    # A watchlist for each listing that holds all the users watching it. 
-    watchList = models.ManyToManyField(User, blank=True, related_name="user") # blank=True means a Listing can have no users watching it.
+    # https://docs.djangoproject.com/en/5.0/ref/models/fields/#django.db.models.ForeignKey.related_name
+    # The name to use for the relation from the related object back to this one. It’s also the default value for related_query_name (the name to use for the reverse filter name from the target model).
+    # https://stackoverflow.com/questions/2642613/what-is-related-name-used-for
+    # https://cs50.harvard.edu/web/2020/notes/4/#shell
+    
+    # Each listing has a watchlist that includes all the users who are watching it or have added it to their watchlist. One listing may be on many user watchlists.
+    watchlist = models.ManyToManyField(User, blank=True, related_name="watch_list") # blank=True means a Listing can have no users watching it.
     
     # https://www.geeksforgeeks.org/python-relational-fields-in-django-models/?ref=gcse
     # "It is a good practice to name the many-to-one field with the same name as the related model, lowercase."
     # "Many-to-one relations are defined using ForeignKey field of django.db.models." A user can have multiple listings but a listing can't have multipls users.
-    createdBy = models.ForeignKey(User, on_delete=models.CASCADE) # If a user is deleted, all listings posted by that user are deleted as well. 
+    createdBy = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user") # If a user is deleted, all listings posted by that user are deleted as well. 
 
     # Instructions to convert Listing object into a string.
     # https://cs50.harvard.edu/web/2020/notes/4/#shell

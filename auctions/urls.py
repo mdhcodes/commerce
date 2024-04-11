@@ -11,4 +11,8 @@ urlpatterns = [
     path("new_listing", views.new_listing, name="new_listing"),
     # Add path to listing page.
     path("listing/<int:id>", views.listing, name="listing"),
+    # Add path to add an item/listing to the user's Watchlist
+    path("add_to_watchlist/<int:id>", views.add_to_watchlist, name="add_to_watchlist"),
+    # Add path to remove an item/listing from the user's Watchlist
+    path("remove_from_watchlist/<int:id>", views.remove_from_watchlist, name="remove_from_watchlist"),
 ]

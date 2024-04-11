@@ -142,18 +142,85 @@ On that page, users should be able to view all details about the listing, includ
 def listing(request, id):
     
     item_id = id
-    # print("Item id:", item_id)
+    # print("Item id:", item_id) # Returns ID
     # print("ID Type", type(item_id)) # <class 'int'>
 
     # Retrieve a specific row in the database table Listings.
     # https://www.w3schools.com/django/django_queryset_get.php
-    listing_data = Listing.objects.filter(id=item_id).values()
-    print("Listing Data:", listing_data)
+    listing_data = Listing.objects.filter(pk=item_id) #.values() # Returns iterable QuerySet with or without .values()
+    # listing_data = Listing.objects.get(pk=item_id) # Returns Platter 1 / Art - .get() retrieves a single object - Listing object is not iterable
+    # If I wanted to use the above .get() I'd have to place listing_data in the context and access each in the html as listing_data.title, listing_data.description, listing_data.description.bid, etc. without a 'for loop'.
+    # print("Listing Data:", listing_data) # Returns QuerySet
+    
+    # Watchlist Database Queries
+    # Does the user have this item on their watch_list?
+    # Get user
+    user_name = request.user
+    # print("User Name:", user_name) # Returns user's name
+    # user_id = request.user.id
+    # print("User ID:", user_id) # Returns user's ID
+
+    # https://stackoverflow.com/questions/4319469/queryset-object-has-no-attribute-error-trying-to-get-related-data-on-manytoma
+    get_listing_data = Listing.objects.get(pk=item_id) # Retrieves a single Listing object - Returns title / category
+    # print("Get Listing Data:", get_listing_data)
+    watchlist_data = get_listing_data.watchlist.all() # Returns QuerySet of users linked to the listing's watchlist.
+    # print("Watchlist Data:", watchlist_data)
+   
+    # user_is_watching = False
+    user_is_watching = user_name in watchlist_data
 
     context = {
         "listing_data": listing_data,
-        "item_id": item_id
+        "item_id": item_id,
+        "user_is_watching": user_is_watching
     }
     
     return render(request, "auctions/listing.html", context)
 
+
+"""
+Watchlist
+If the user is signed in, the may add the item to their “Watchlist.” 
+If the item is already on the watchlist, they may remove it.
+"""
+
+def add_to_watchlist(request, id):
+
+    listing_id = id
+    user_name = request.user
+
+    # https://docs.djangoproject.com/en/5.0/topics/db/queries/#saving-foreignkey-and-manytomanyfield-fields
+    # Saving ForeignKey and ManyToManyField fields
+    # Get listing
+    get_listing_data = Listing.objects.get(pk=listing_id)
+
+    # If POST request
+    if request.method == "POST":
+
+        # Update ManyToManyField using add(). Add user to the watchlist in the Listing table for the specified item.
+        get_listing_data.watchlist.add(user_name)
+        
+        # Redirect to listing.html passing the argument 'id' for the listing.
+        # https://stackoverflow.com/questions/52575418/reverse-with-prefix-argument-after-must-be-an-iterable-not-int
+        return HttpResponseRedirect(reverse("listing", args=(listing_id,)))
+
+
+def remove_from_watchlist(request, id):
+
+    listing_id = id
+    user_name = request.user  
+
+    # https://docs.djangoproject.com/en/5.0/topics/db/queries/#many-to-many-relationships
+    # Remove items from a field in the database
+    # Get listing
+    get_listing_data = Listing.objects.get(pk=listing_id)
+
+    # If POST request
+    if request.method == "POST":        
+
+        # Update ManyToManyField using remove(). Remove the user from the watchlist in the Listing table for the specified item.
+        get_listing_data.watchlist.remove(user_name)
+        
+        # Redirect to listing.html passing the argument 'id' for the listing
+        # https://stackoverflow.com/questions/52575418/reverse-with-prefix-argument-after-must-be-an-iterable-not-int
+        return HttpResponseRedirect(reverse("listing", args=(listing_id,)))
