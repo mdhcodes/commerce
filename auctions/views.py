@@ -179,7 +179,7 @@ def listing(request, id):
 
 
 """
-Watchlist
+Watchlist - Add/Remove Items
 If the user is signed in, the may add the item to their “Watchlist.” 
 If the item is already on the watchlist, they may remove it.
 """
@@ -224,3 +224,24 @@ def remove_from_watchlist(request, id):
         # Redirect to listing.html passing the argument 'id' for the listing
         # https://stackoverflow.com/questions/52575418/reverse-with-prefix-argument-after-must-be-an-iterable-not-int
         return HttpResponseRedirect(reverse("listing", args=(listing_id,)))
+    
+
+"""
+Watchlist Page: Authenticated users may access a Watchlist page, which displays all of the listings on their watchlist. 
+Clicking on any of the listings takes the user to that listing’s page.
+"""
+
+def watchList(request):
+    user_name = request.user
+
+    # https://docs.djangoproject.com/en/5.0/topics/db/queries/#following-relationships-backward
+    # https://stackoverflow.com/questions/2642613/what-is-related-name-used-for
+    # Get all listings / watchlists for the current user
+    get_user_watchList = user_name.watch_list.all()
+    print("Get User WatchList", get_user_watchList)
+
+    context = {
+        "watchList": get_user_watchList
+    }
+
+    return render(request, "auctions/watchlist.html", context)

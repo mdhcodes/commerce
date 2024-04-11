@@ -15,4 +15,6 @@ urlpatterns = [
     path("add_to_watchlist/<int:id>", views.add_to_watchlist, name="add_to_watchlist"),
     # Add path to remove an item/listing from the user's Watchlist
     path("remove_from_watchlist/<int:id>", views.remove_from_watchlist, name="remove_from_watchlist"),
+    # Add path to watchlist page.
+    path("watchList", views.watchList, name="watchList")
 ]

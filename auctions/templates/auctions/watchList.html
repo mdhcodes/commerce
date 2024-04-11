@@ -1,0 +1,21 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+    <h2>Watchlist Listings</h2>
+
+    {% comment %} 
+    Watchlist Page: Authenticated users may access a Watchlist page, which displays all of the listings on their watchlist. 
+    Clicking on any of the listings takes the user to that listing’s page.
+    {% endcomment %}
+
+    <ul>        
+        {% for listing in watchList %}
+
+            <!-- Clicking on a listing should take users to that listing's page.  -->            
+            <li><a href="{% url 'listing' listing.id %}">Title: {{ listing.title }}</a></li>
+            
+        {% endfor %} 
+    </ul>
+
+
+{% endblock %}
