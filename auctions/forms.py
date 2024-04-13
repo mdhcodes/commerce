@@ -4,7 +4,7 @@
 
 
 from django import forms
-from .models import Listing
+from .models import Listing, Bid
 
 
 # Create a ModelForm.
@@ -20,3 +20,13 @@ class CreateListingForm(forms.ModelForm):
             "watchlist": forms.HiddenInput()
         } 
         # exclude = ["watchlist"]
+
+
+class CreateBidForm(forms.ModelForm):
+    class Meta:
+        model = Bid
+        fields = "__all__"
+        widgets = {
+            "listing": forms.HiddenInput(),
+            "placedBy": forms.HiddenInput()  
+        }

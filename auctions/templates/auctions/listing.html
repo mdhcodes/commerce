@@ -34,7 +34,23 @@ Listing Page:
                     <input type="submit" value="Add to Watchlist">
                 </form>
                 
+            {% endif %} 
+            
+            {% if starting_bid %}
+                <p>Starting Bid: {{ bid }}</p>  
+                {% else %}                
+                    <p>Current Bid: {{ bid }}</p> 
             {% endif %}
+
+            <p>Total bid(s): {{ total_bids }} Your bid will be the current bid.</p>
+
+            <!-- The user may place a bid. -->
+            <form action="{% url 'bid' item_id %}" method="post">
+                {% csrf_token %}
+                {{ form }}                
+                <input type="submit" value="Place Bid">
+            </form>
+
 
         {% endif %}
 
@@ -44,13 +60,12 @@ Listing Page:
 
         {% for data in listing_data %}
             {% comment %} Users are able to view all details about the listing including the current price. {% endcomment %}
-            <li>Listing ID: {{ data.id }}</li>
-            <li>Title: {{ data.title }}</li>
+            <li>Listing: {{ data.title }}</li>
             <li>Description: {{ data.description }}</li>
             <li>Bid: {{ data.bid }}</li>
             <li>Category: {{ data.category }}</li>
             <li>Image: {{ data.image }}</li>
-            <li>Created by: {{ data.createdBy_id }}</li>
+            <li>Listed by: {{ data.createdBy }}</li>
         {% endfor %}
 
     </ul>

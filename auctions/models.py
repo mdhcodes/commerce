@@ -41,7 +41,7 @@ class Listing(models.Model):
     # https://stackoverflow.com/questions/1139393/what-is-the-best-django-model-field-to-use-to-represent-a-us-dollar-amount
     # https://dev.to/koladev/django-tip-use-decimalfield-for-money-3f63
     # https://www.geeksforgeeks.org/decimalfield-django-models/
-    bid = models.DecimalField(max_digits=19, decimal_places=2, default=00.00) # "Stores numbers up to one billion with a resolution of 4 decimal places."
+    bid = models.DecimalField(max_digits=19, decimal_places=2) #, default=00.00) # "Stores numbers up to one billion with a resolution of 4 decimal places."
 
     # https://docs.djangoproject.com/en/5.0/ref/models/fields/#django.db.models.ForeignKey.related_name
     # The name to use for the relation from the related object back to this one. It’s also the default value for related_query_name (the name to use for the reverse filter name from the target model).
@@ -60,3 +60,23 @@ class Listing(models.Model):
     # https://cs50.harvard.edu/web/2020/notes/4/#shell
     def __str__(self):
         return f"{self.title} / {self.category}"
+    
+
+
+class Bid(models.Model):
+    # https://stackoverflow.com/questions/1139393/what-is-the-best-django-model-field-to-use-to-represent-a-us-dollar-amount
+    # https://dev.to/koladev/django-tip-use-decimalfield-for-money-3f63
+    # https://www.geeksforgeeks.org/decimalfield-django-models/
+    # https://stackoverflow.com/questions/70738255/whats-the-default-value-for-a-decimalfield-in-django
+    bid = models.DecimalField(max_digits=19, decimal_places=10) #, default=00.00) # "Stores numbers up to one billion with a resolution of 10 decimal places."
+    # https://www.geeksforgeeks.org/python-relational-fields-in-django-models/?ref=gcse
+    # Listing is a many-to-one relationship.
+    # A listing can have multiple bids but a bid can't have multiple listings. If a listing is deleted, all bids posted for that listing are deleted as well.
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="listing_bids")
+    # User is a many-to-one relationship.
+    # A user can have multiple bids but a bid can't have multiple users. If a user is deleted, all bids posted by that user are deleted as well. 
+    placedBy = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_bids") # If a user is deleted, all bids posted by that user are deleted as well. 
+
+    
+    def __str__(self):
+        return f"{self.id} / {self.listing} / {self.bid}"

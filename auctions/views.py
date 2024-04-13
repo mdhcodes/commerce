@@ -4,9 +4,9 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-from .models import User, Listing
+from .models import User, Listing, Bid
 # Use Django to create the new listing form from the model.
-from .forms import CreateListingForm
+from .forms import CreateListingForm, CreateBidForm
 
 
 def index(request):
@@ -169,10 +169,37 @@ def listing(request, id):
     # user_is_watching = False
     user_is_watching = user_name in watchlist_data
 
+    # Add Bid form if the user is signed in.
+    form = CreateBidForm()
+
+    # Get the current bid.
+    # https://stackoverflow.com/questions/25881015/django-queryset-return-single-value
+    # https://docs.djangoproject.com/en/5.0/ref/models/querysets/#values-list
+    # bid_data = Listing.objects.values_list("bid", flat=True) # Returns all bids
+    last_bid = Listing.objects.values_list("bid", flat=True).get(pk=item_id) # Returns bid for specified item or listing.
+    # print("Bid Data:", bid_data)
+         
+    # Show number of bids on the front end.
+    # ??!!!!!! I need total_bids fro specific listing!!!!!!??
+    # total_bids = len(Bid.objects.values_list("bid", flat=True)) # All listing bids in Bid table. 
+    total_bids = len(Bid.objects.filter(listing_id=item_id)) # All bids on one listing.
+    # print("Total Bids:", total_bids)
+
+    # If the total number of bids == 0:
+    # https://stackoverflow.com/questions/394809/does-python-have-a-ternary-conditional-operator
+    # a if condition else b
+    starting_bid = True if total_bids == 0 else False
+    # if total_bids == 0:
+        # starting_bid = True # HTML should read Starting Bid:
+
     context = {
         "listing_data": listing_data,
         "item_id": item_id,
-        "user_is_watching": user_is_watching
+        "user_is_watching": user_is_watching,
+        "bid": last_bid,
+        "total_bids": total_bids,
+        "starting_bid": starting_bid,
+        "form": form
     }
     
     return render(request, "auctions/listing.html", context)
@@ -245,3 +272,113 @@ def watchList(request):
     }
 
     return render(request, "auctions/watchlist.html", context)
+
+
+"""
+Bid - An authenticated user may bid on an item.
+The bid must be at least as large as the starting bid, and must be greater than any other bids that have been placed (if any). 
+If the bid doesn’t meet those criteria, the user should be presented with an error.
+"""
+
+def bid(request, id):
+
+    listing_id = id
+    user_name = request.user
+    # user_id = request.user.id
+
+    # If POST request
+    if request.method == "POST":
+
+        # Store the user data in a variable called bid_amount.
+        bid_amount = CreateBidForm(request.POST)
+        print("Bid Amount:", bid_amount)
+
+        # Capture the bid_amount value.
+        current_bid = bid_amount["bid"].value()
+        print("Current Bid:", current_bid)  
+        
+        # last_bid = Listing.objects.values_list("bid", flat=True).get(pk=listing_id) # Returns bid for specified item or listing.
+        
+        # Capture listing object with the listing_id from Listing table to save and update Listing and Bid tables.
+        # listing = Listing.objects.filter(pk=listing_id) # ValueError at /bid/2 - Cannot assign "<QuerySet [<Listing: Platter 1 / Art>]>": "Bid.listing" must be a "Listing" instance.
+        listing = Listing.objects.get(pk=listing_id)
+        # print("Listing:", listing)
+
+        # Save the Bid.
+        # Save bid, listing_id, and user_name
+        bid_data = Bid(
+            bid=current_bid, 
+            listing=listing,
+            # listing=listing, # Cannot assign "2": "Bid.listing" must be a "Listing" instance. # IntegrityError at /bid/2 - NOT NULL constraint failed: auctions_bid.listing_id # IntegrityError at /bid/2 - NOT NULL constraint failed: auctions_listing.createdBy_id
+            # listing=listing_id, # ValueError at /bid/2 - Cannot assign "2": "Bid.listing" must be a "Listing" instance.
+            placedBy=user_name
+        )
+
+        bid_data.save()   
+
+        # Update the Listing bid / current bid.
+        update_listing = Listing(
+            bid=current_bid
+            # IntegrityError at /bid/2 - NOT NULL constraint failed: auctions_listing.createdBy_id
+        )
+
+        update_listing.save()
+        
+    # Redirect to listing.html
+    return HttpResponseRedirect(reverse("listing", args=(listing_id,)))
+
+"""
+def bid(request, id):
+
+    listing_id = id
+    user_name = request.user
+    # user_id = request.user.id
+
+    # If POST request
+    if request.method == "POST":  
+
+        # Store the user data in a variable called bid_amount.
+        bid_amount = CreateBidForm(request.POST)
+        print("Bid Amount:", bid_amount)
+
+        # Capture the bid_amount value.
+        current_bid = bid_amount["bid"].value()
+        print("Current Bid:", current_bid)  
+        
+        last_bid = Listing.objects.values_list("bid", flat=True).get(pk=listing_id) # Returns bid for specified item or listing.
+        # If last bid is >= current bid stored in Listing table
+        if last_bid >= int(current_bid):
+
+            # Capture listing object with the listing_id from Listing table to save and update Listing and Bid tables.
+            # listing = Listing.objects.filter(pk=listing_id) # ValueError at /bid/2 - Cannot assign "<QuerySet [<Listing: Platter 1 / Art>]>": "Bid.listing" must be a "Listing" instance.
+            listing = Listing.objects.get(pk=listing_id)
+            # print("Listing:", listing)
+
+            # Save the Bid.
+            # Save bid, listing_id, and user_name
+            bid_data = Bid(
+                bid=current_bid,
+                listing=listing,
+                # listing=listing_id, # Cannot assign "2": "Bid.listing" must be a "Listing" instance. # IntegrityError at /bid/2 - NOT NULL constraint failed: auctions_bid.listing_id
+                placedBy=user_name
+            )
+
+            bid_data.save()   
+
+            # Update the Listing bid / current bid.
+            update_listing = Listing(
+                bid=current_bid
+            )
+
+            update_listing.save()
+
+        else:
+            return HttpResponseRedirect(reverse("listing", args=(listing_id,)), {
+                "message": "Bid error: Your bid must be greater than the starting or current bid."
+            })        
+    
+    # Redirect to listing.html
+    return HttpResponseRedirect(reverse("listing", args=(listing_id,)))
+
+
+"""
