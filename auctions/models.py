@@ -11,6 +11,12 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
+# Validate numbers are within a certain range with MinValueValidator and MaxValueValidator.
+# https://stackoverflow.com/questions/44022056/validators-minvaluevalidator-does-not-work-in-django
+from django.core.validators import MinValueValidator
+# Import Decimal to set the value of MinValueValidator.
+from decimal import Decimal
+
 
 class User(AbstractUser):
     pass # Pass = placeholder for future code. Python will do nothing when it sees the 'pass' statement.
@@ -41,7 +47,8 @@ class Listing(models.Model):
     # https://stackoverflow.com/questions/1139393/what-is-the-best-django-model-field-to-use-to-represent-a-us-dollar-amount
     # https://dev.to/koladev/django-tip-use-decimalfield-for-money-3f63
     # https://www.geeksforgeeks.org/decimalfield-django-models/
-    bid = models.DecimalField(max_digits=19, decimal_places=2) #, default=00.00) # "Stores numbers up to one billion with a resolution of 4 decimal places."
+    # https://stackoverflow.com/questions/12384460/allow-only-positive-decimal-numbers # Ensure bids are never negative numbers with MinValueValidator.
+    bid = models.DecimalField(max_digits=19, decimal_places=2, validators=[MinValueValidator(Decimal("0.01"))]) #, default=00.00) # "Stores numbers up to one billion with a resolution of 4 decimal places."
 
     # https://docs.djangoproject.com/en/5.0/ref/models/fields/#django.db.models.ForeignKey.related_name
     # The name to use for the relation from the related object back to this one. It’s also the default value for related_query_name (the name to use for the reverse filter name from the target model).
@@ -68,7 +75,9 @@ class Bid(models.Model):
     # https://dev.to/koladev/django-tip-use-decimalfield-for-money-3f63
     # https://www.geeksforgeeks.org/decimalfield-django-models/
     # https://stackoverflow.com/questions/70738255/whats-the-default-value-for-a-decimalfield-in-django
-    bid = models.DecimalField(max_digits=19, decimal_places=10) #, default=00.00) # "Stores numbers up to one billion with a resolution of 10 decimal places."
+    # https://stackoverflow.com/questions/12384460/allow-only-positive-decimal-numbers # Ensure bids are never negative numbers with MinValueValidator.
+    bid = models.DecimalField(max_digits=19, decimal_places=2, validators=[MinValueValidator(Decimal("0.01"))]) #, default=00.00) # "Stores numbers up to one billion with a resolution of 10 decimal places."
+ 
     # https://www.geeksforgeeks.org/python-relational-fields-in-django-models/?ref=gcse
     # Listing is a many-to-one relationship.
     # A listing can have multiple bids but a bid can't have multiple listings. If a listing is deleted, all bids posted for that listing are deleted as well.

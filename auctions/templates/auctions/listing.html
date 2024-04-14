@@ -13,7 +13,12 @@ Listing Page:
 
 {% block body %}
 
-    <p style="color: green;">{{ message }}</p>
+    <p style="color: green;">{{ new_listing_message }}</p>
+    <p style="color: green;">{{ bid_success_message }}</p>
+    <p style="color: red;">{{ bid_error_message }}</p>
+    {% comment %} Code below must be inside if statements or else the background color is displayed with no message before code is run. {% endcomment %}
+    {% comment %} <p class="alert alert-success" role="alert">{{ bid_success_message }}</p> {% endcomment %}
+    {% comment %} <p class="alert alert-danger" role="alert">{{ bid_error_message }}</p> {% endcomment %}
 
     <div>
         
@@ -47,8 +52,9 @@ Listing Page:
             <!-- The user may place a bid. -->
             <form action="{% url 'bid' item_id %}" method="post">
                 {% csrf_token %}
-                {{ form }}                
-                <input type="submit" value="Place Bid">
+                {{ form.as_p }}                
+                {% comment %} <input type="submit" value="Place Bid"> {% endcomment %} 
+                <button type="submit">Place Bid</button>
             </form>
 
 

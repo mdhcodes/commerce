@@ -8,6 +8,9 @@ from .models import User, Listing, Bid
 # Use Django to create the new listing form from the model.
 from .forms import CreateListingForm, CreateBidForm
 
+# Use Decimal() to convert the bid input by the user as a string to a decimal.
+from decimal import Decimal
+
 
 def index(request):
 
@@ -112,7 +115,8 @@ def new_listing(request):
         # https://docs.djangoproject.com/en/5.0/ref/models/instances/#how-django-knows-to-update-vs-insert
         listing_data = Listing(title=title, 
                 description=description, 
-                bid=bid, 
+                # https://stackoverflow.com/questions/72062094/i-got-decimal-invalidoperation-class-decimal-conversionsyntax
+                bid=Decimal(bid), 
                 category=category,
                 # image
                 createdBy=user
@@ -122,8 +126,15 @@ def new_listing(request):
 
         # Redirect to index.html
         # https://www.geeksforgeeks.org/django-modelform-create-form-from-models/
-        return HttpResponseRedirect(reverse("index"), {
-            "message": "Your new listing was saved." # !!!!!! NOT WORKING - Listings were created but the message is not displayed. !!!!!!
+        # return HttpResponseRedirect(reverse("index"), {
+        #     "message": "Your new listing was saved." # !!!!!! NOT WORKING - Listings were created but the message is not displayed. !!!!!!
+        # })
+
+        all_listings = Listing.objects.all()
+
+        return render(request, "auctions/index.html", {
+            "all_listings": all_listings,
+            "new_listing_message": "Your new listing was saved."
         })
              
     else:
@@ -280,49 +291,106 @@ The bid must be at least as large as the starting bid, and must be greater than 
 If the bid doesn’t meet those criteria, the user should be presented with an error.
 """
 
+"""
+NoReverseMatch at /bid/1
+Reverse for 'add_to_watchlist' with arguments '('',)' not found. 1 pattern(s) tried: ['add_to_watchlist/(?P<id>[0-9]+)\\Z']
+"auctions/listing.html" has two forms and when the user submits a bid the program throws an error because its expecting the argument for "add_to_watchlist" or "remove_from_watchlist".
+"""
+
 def bid(request, id):
+
+    # https://stackoverflow.com/questions/59727384/multiple-django-forms-in-single-view-why-does-one-post-clear-other-forms
+    # There are multiple forms on the listing page and both are being submitted when one button is clicked. Error is displayed requesting other form.
 
     listing_id = id
     user_name = request.user
     # user_id = request.user.id
 
-    # If POST request
-    if request.method == "POST":
+    # https://stackoverflow.com/questions/866272/how-can-i-build-multiple-submit-buttons-django-form
+    # Determine which form to use
 
+    # If POST request and name == bid
+    if request.method == "POST" and "bid" in request.POST:
+
+        print("POST Data:", request.POST)
+
+        
+        # <input type="submit" value="Place Bid"> - This HTML caused the following output with the key as '200' and the value as 'Place Bid'. QueryDict below:
+        # request.POST = <QueryDict: {'csrfToken': ['djwi5iyo...'], 'bid': ['200', 'Place Bid'], 'listing': [''], 'placedBy': ['']}>
+        # Changed to a button and received the following data: <QueryDict: {'csrfToken': ['djwi5iyo...'], 'bid': ['200'], 'listing': [''], 'placedBy': ['']}>
+        
+       
         # Store the user data in a variable called bid_amount.
         bid_amount = CreateBidForm(request.POST)
+        
+
         print("Bid Amount:", bid_amount)
 
         # Capture the bid_amount value.
-        current_bid = bid_amount["bid"].value()
-        print("Current Bid:", current_bid)  
+        current_bid = bid_amount["bid"].value() # Returns "Place Bid" not 200
+        print("Current Bid:", current_bid) 
         
-        # last_bid = Listing.objects.values_list("bid", flat=True).get(pk=listing_id) # Returns bid for specified item or listing.
-        
-        # Capture listing object with the listing_id from Listing table to save and update Listing and Bid tables.
-        # listing = Listing.objects.filter(pk=listing_id) # ValueError at /bid/2 - Cannot assign "<QuerySet [<Listing: Platter 1 / Art>]>": "Bid.listing" must be a "Listing" instance.
-        listing = Listing.objects.get(pk=listing_id)
-        # print("Listing:", listing)
+        last_bid = Listing.objects.values_list("bid", flat=True).get(pk=listing_id) # Returns bid for specified item or listing.
+        print("Last Bid:", last_bid) 
+        print("Type Last Bid:", type(last_bid)) # <class 'decimal.Decimal'>
+        print("Type Current Bid:", type(current_bid)) # <class 'str'>
 
-        # Save the Bid.
-        # Save bid, listing_id, and user_name
-        bid_data = Bid(
-            bid=current_bid, 
-            listing=listing,
+        # https://stackoverflow.com/questions/4643991/python-converting-string-into-decimal-number
+        # If last bid is >= current bid stored in Listing table
+        # if last_bid < Decimal(current_bid): # InvalidOperation at /bid/3 - [<class 'decimal.ConversionSyntax'>] bid must be saved as Decimal(bid) from the user
+        if last_bid < Decimal(current_bid):
+            # Capture listing object with the listing_id from Listing table to save and update Listing and Bid tables.
+            # listing = Listing.objects.filter(pk=listing_id) # ValueError at /bid/2 - Cannot assign "<QuerySet [<Listing: Platter 1 / Art>]>": "Bid.listing" must be a "Listing" instance.
+            # listing = Listing.objects.get(pk=listing_id) # # Cannot assign "2": "Bid.listing" must be a "Listing" instance. # IntegrityError at /bid/2 - NOT NULL constraint failed: auctions_bid.listing_id # IntegrityError at /bid/2 - NOT NULL constraint failed: auctions_listing.createdBy_id
+            listing = Listing.objects.filter(pk=listing_id).get(id=listing_id)
+            print("Listing:", listing)
+
+            # Save the Bid.
+            # Save bid, listing_id, and user_name
+            bid_data = Bid(
+                # https://stackoverflow.com/questions/72062094/i-got-decimal-invalidoperation-class-decimal-conversionsyntax
+                bid=Decimal(current_bid), 
+                listing=listing,
+                placedBy=user_name
+            )
+
+            bid_data.save()   
+
+            # THE FOLLOWING ERRORS WERE TELLING ME THAT I WAS NOT ACCESSING A SPECIFIC FIELD IN THE TABLE TO UPDATE. CORRECTION BELOW WITH update_listing.
             # listing=listing, # Cannot assign "2": "Bid.listing" must be a "Listing" instance. # IntegrityError at /bid/2 - NOT NULL constraint failed: auctions_bid.listing_id # IntegrityError at /bid/2 - NOT NULL constraint failed: auctions_listing.createdBy_id
             # listing=listing_id, # ValueError at /bid/2 - Cannot assign "2": "Bid.listing" must be a "Listing" instance.
-            placedBy=user_name
-        )
 
-        bid_data.save()   
+            # Update the Listing bid / current bid.
+            # https://stackoverflow.com/questions/3681627/how-to-update-fields-in-a-model-without-creating-a-new-record-in-django
+            update_listing = Listing.objects.get(pk=listing_id)
+            # https://stackoverflow.com/questions/72062094/i-got-decimal-invalidoperation-class-decimal-conversionsyntax
+            update_listing.bid = Decimal(current_bid)
 
-        # Update the Listing bid / current bid.
-        update_listing = Listing(
-            bid=current_bid
-            # IntegrityError at /bid/2 - NOT NULL constraint failed: auctions_listing.createdBy_id
-        )
+            # update_listing = Listing(
+            #     bid=current_bid
+            #     # IntegrityError at /bid/2 - NOT NULL constraint failed: auctions_listing.createdBy_id
+            # )
 
-        update_listing.save()
+            update_listing.save()
+
+            listing_data = Listing.objects.filter(pk=listing_id)
+
+
+            
+            return render(request, "auctions/listing.html", {
+                "listing data": listing_data,
+                "bid_success_message": "Bid was successful."
+            }) 
+
+        else:
+
+            listing_data = Listing.objects.filter(pk=listing_id)
+
+            return render(request, "auctions/listing.html", {
+                "listing data": listing_data,
+                # To display the message below, check on the server with a try / except.
+                "bid_error_message": "Bid error: Your bid was invalid or it must be greater than the starting or current bid." # ValueError at /bid/3 - invalid literal for int() with base 10: '-0.03'
+            }) 
         
     # Redirect to listing.html
     return HttpResponseRedirect(reverse("listing", args=(listing_id,)))

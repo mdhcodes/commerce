@@ -7,7 +7,7 @@ from django.contrib import admin
 # Also, register the model in the app’s admin.py:
 
 from django.contrib.auth.admin import UserAdmin
-from .models import User, Listing
+from .models import User, Listing, Bid
 
 # https://cs50.harvard.edu/web/2020/notes/4/#django-admin
 # To customize the admin app interface, create a new class here.
@@ -29,8 +29,12 @@ class UserAdmin(admin.ModelAdmin):
 class ListingAdmin(admin.ModelAdmin):
     pass
 
+class BidAdmin(admin.ModelAdmin):
+    pass
+
 
 # https://docs.djangoproject.com/en/5.0/topics/auth/customizing/#using-a-custom-user-model-when-starting-a-project
 # Also, register the (User) model in the app’s admin.py.
 admin.site.register(User, UserAdmin)
 admin.site.register(Listing, ListingAdmin)
+admin.site.register(Bid, ListingAdmin)
