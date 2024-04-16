@@ -16,13 +16,31 @@ Listing Page:
     <p style="color: green;">{{ new_listing_message }}</p>
     <p style="color: green;">{{ bid_success_message }}</p>
     <p style="color: red;">{{ bid_error_message }}</p>
+
+    <p style="color: green;">{{ close_message }}</p>
+
+    <!-- Alert user is they won the item by having the highest bid. -->
+    {% if listing_is_open and user.id == highest_bidder_id %}        
+        <p style="color: green;">You had the winning bid!!!</p>
+    {% endif %}
+
+    
     {% comment %} Code below must be inside if statements or else the background color is displayed with no message before code is run. {% endcomment %}
     {% comment %} <p class="alert alert-success" role="alert">{{ bid_success_message }}</p> {% endcomment %}
     {% comment %} <p class="alert alert-danger" role="alert">{{ bid_error_message }}</p> {% endcomment %}
 
     <div>
         
-        {% if user.is_authenticated %}
+        {% if user.is_authenticated and listing_is_open %} <!-- To remove buttons when auction is closed check that open is true -->
+
+            {% if creator %}
+            <!-- The Listing creator may close the auction. -->
+            <form action="{% url 'close' item_id %}" method="post">
+                {% csrf_token %}
+                <input type="submit" value="Close Auction">
+            </form>
+
+            {% endif %}
 
             {% if user_is_watching %} <!-- Is the item on the watchlist? -->
                 <!-- If the item is already on the watchlist, the user may remove it. -->
@@ -43,11 +61,7 @@ Listing Page:
                     {% comment %} <button type="submit">Add to Watchlist</button> {% endcomment %}
                 </form>
                 
-            {% endif %} 
-
-        {% endif %}
-
-        {% if user.is_authenticated %}        
+            {% endif %}             
             
             {% if starting_bid %}
                 <p>Starting Bid: {{ bid }}</p>  

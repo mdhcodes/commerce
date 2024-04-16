@@ -18,5 +18,7 @@ urlpatterns = [
     # Add path to watchlist page.
     path("watchList", views.watchList, name="watchList"),
     # Add path to place a bid.
-    path("bid/<int:id>", views.bid, name="bid")
+    path("bid/<int:id>", views.bid, name="bid"),
+    # Add path to close a listing or auction.
+    path("close/<int:id>", views.close, name="close")
 ]

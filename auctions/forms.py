@@ -17,7 +17,8 @@ class CreateListingForm(forms.ModelForm):
         # https://stackoverflow.com/questions/22606786/how-to-hide-a-field-in-django-modelform
         widgets = {
             "createdBy": forms.HiddenInput(),
-            "watchlist": forms.HiddenInput()
+            "watchlist": forms.HiddenInput(),
+            "is_open": forms.HiddenInput()
         } 
         # exclude = ["watchlist"]
 

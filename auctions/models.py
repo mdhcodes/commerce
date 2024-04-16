@@ -57,6 +57,9 @@ class Listing(models.Model):
     
     # Each listing has a watchlist that includes all the users who are watching it or have added it to their watchlist. One listing may be on many user watchlists.
     watchlist = models.ManyToManyField(User, blank=True, related_name="watch_list") # blank=True means a Listing can have no users watching it.
+
+    # Each listing needs to be open to bids or closed to bids. 
+    is_open = models.BooleanField(default=True)
     
     # https://www.geeksforgeeks.org/python-relational-fields-in-django-models/?ref=gcse
     # "It is a good practice to name the many-to-one field with the same name as the related model, lowercase."
