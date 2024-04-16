@@ -181,7 +181,7 @@ def listing(request, id):
     user_is_watching = user_name in watchlist_data
 
     # Add Bid form if the user is signed in.
-    form = CreateBidForm()
+    # form = CreateBidForm() # When this form is submitted, it also expects an argument to the add to/remove from watchlist path. Will hardcode form in HTML for now. # Error Message: NoReverseMatch at /bid/3 - Reverse for 'add_to_watchlist' with arguments '('',)' not found. 1 pattern(s) tried: ['add_to_watchlist/(?P<id>[0-9]+)\\Z']
 
     # Get the current bid.
     # https://stackoverflow.com/questions/25881015/django-queryset-return-single-value
@@ -209,8 +209,8 @@ def listing(request, id):
         "user_is_watching": user_is_watching,
         "bid": last_bid,
         "total_bids": total_bids,
-        "starting_bid": starting_bid,
-        "form": form
+        "starting_bid": starting_bid
+        # "form": form
     }
     
     return render(request, "auctions/listing.html", context)
@@ -309,10 +309,14 @@ def bid(request, id):
     # https://stackoverflow.com/questions/866272/how-can-i-build-multiple-submit-buttons-django-form
     # Determine which form to use
 
-    # If POST request and name == bid
-    if request.method == "POST" and "bid" in request.POST:
+    # If POST request and the arguments for add/remove from watchlist are empty OR select only the bid form OR prevent the add/remove from watchlist button
+    if request.method == "POST": # and (not add_to_watchlist or not remove_from_watchlist):
 
-        print("POST Data:", request.POST)
+        """
+        # print("POST Data:", request.POST)
+        # print("BID POST:", request.POST.get("placeBid")) # Returns user_bid
+
+        # print("Request Body:", request.body)
 
         
         # <input type="submit" value="Place Bid"> - This HTML caused the following output with the key as '200' and the value as 'Place Bid'. QueryDict below:
@@ -321,13 +325,31 @@ def bid(request, id):
         
        
         # Store the user data in a variable called bid_amount.
-        bid_amount = CreateBidForm(request.POST)
+        # bid_amount = CreateBidForm(request.POST) # NoReverseMatch at /bid/3 - Reverse for 'add_to_watchlist' with arguments '('',)' not found. 1 pattern(s) tried: ['add_to_watchlist/(?P<id>[0-9]+)\\Z']
+        # The above code grabs the empty arguments from add to/remove from watchlist and wants to execute that route as well.
+
+        # !!!!!! # When this form is submitted, it also expects an argument to the add to/remove from watchlist path. Will hardcode form in HTML for now. !!!!!!
+        """        
+
+        # print("POST Data:", request.POST) # Returns <QueryDict: {'csrfToken': ['djwi5iyo...'], 'placeBid': ['10']}> - Result from input field in HTML.
+        # print("POST Data:", request.POST) # Returns <QueryDict: {'csrfToken': ['djwi5iyo...'], 'placeBid': ['10', 'user_bid']}> - Result with a button.
+
+        # Error NoReverseMatch... 'add_to_watchlist' with arguments not found persists with hardcoded form. 
         
+        """
+        THE LOGIC TO PLACE A BID WORKS WITH THE DJANGO FORM AND THE HARDCODED FORM. THE DATABASES ARE UPDATED WHEN CONDITIONS ARE MET. HOWEVER, THE PROGRAM CRASHES BECAUSE IT
+        IS ALSO EXPECTING AN ARGUMENT FOR THE ADD_TO/REMOVE_FROM_WATCHLIST PATH.
+        """
+        
+        print("Request Body:", request.body) # Returns b'csrfToken=djwi5iyo...&placeBid=10&placeBid=user_bid' - Result with a button with value="user_bid".
+
+        bid_amount = request.POST['placeBid']
 
         print("Bid Amount:", bid_amount)
 
         # Capture the bid_amount value.
-        current_bid = bid_amount["bid"].value() # Returns "Place Bid" not 200
+        # current_bid = bid_amount["bid"].value() # Returns "Place Bid" not 200
+        current_bid = Decimal(bid_amount)
         print("Current Bid:", current_bid) 
         
         last_bid = Listing.objects.values_list("bid", flat=True).get(pk=listing_id) # Returns bid for specified item or listing.
@@ -338,7 +360,7 @@ def bid(request, id):
         # https://stackoverflow.com/questions/4643991/python-converting-string-into-decimal-number
         # If last bid is >= current bid stored in Listing table
         # if last_bid < Decimal(current_bid): # InvalidOperation at /bid/3 - [<class 'decimal.ConversionSyntax'>] bid must be saved as Decimal(bid) from the user
-        if last_bid < Decimal(current_bid):
+        if last_bid < current_bid:
             # Capture listing object with the listing_id from Listing table to save and update Listing and Bid tables.
             # listing = Listing.objects.filter(pk=listing_id) # ValueError at /bid/2 - Cannot assign "<QuerySet [<Listing: Platter 1 / Art>]>": "Bid.listing" must be a "Listing" instance.
             # listing = Listing.objects.get(pk=listing_id) # # Cannot assign "2": "Bid.listing" must be a "Listing" instance. # IntegrityError at /bid/2 - NOT NULL constraint failed: auctions_bid.listing_id # IntegrityError at /bid/2 - NOT NULL constraint failed: auctions_listing.createdBy_id
@@ -349,7 +371,8 @@ def bid(request, id):
             # Save bid, listing_id, and user_name
             bid_data = Bid(
                 # https://stackoverflow.com/questions/72062094/i-got-decimal-invalidoperation-class-decimal-conversionsyntax
-                bid=Decimal(current_bid), 
+                # bid=Decimal(current_bid),
+                bid=current_bid, 
                 listing=listing,
                 placedBy=user_name
             )
@@ -364,7 +387,8 @@ def bid(request, id):
             # https://stackoverflow.com/questions/3681627/how-to-update-fields-in-a-model-without-creating-a-new-record-in-django
             update_listing = Listing.objects.get(pk=listing_id)
             # https://stackoverflow.com/questions/72062094/i-got-decimal-invalidoperation-class-decimal-conversionsyntax
-            update_listing.bid = Decimal(current_bid)
+            # update_listing.bid = Decimal(current_bid)
+            update_listing.bid = current_bid
 
             # update_listing = Listing(
             #     bid=current_bid
@@ -374,8 +398,6 @@ def bid(request, id):
             update_listing.save()
 
             listing_data = Listing.objects.filter(pk=listing_id)
-
-
             
             return render(request, "auctions/listing.html", {
                 "listing data": listing_data,
