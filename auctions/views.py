@@ -215,13 +215,27 @@ def listing(request, id):
     listing_is_open = get_listing_data.is_open
 
     # Get the last or highest bid and the user who placed it to determine the winner.
-    highest_bid = Listing.objects.values_list("bid", flat=True).get(pk=item_id)
+    highest_bid_amount = Listing.objects.values_list("bid", flat=True).get(pk=item_id)
+    print("Highest Bid Amount:", highest_bid_amount)
+
+    # Search Bid table for the item_id with the highest_bid and find the user who placed that bid.
+
+    all_bids_for_item = Bid.objects.filter(listing_id=item_id)
+    # print("All Bids for Item:", all_bids_for_item)
+
+    # Get the bid that equals the highest bid.
+    highest_bid = all_bids_for_item.get(bid=highest_bid_amount)
     print("Highest Bid:", highest_bid)
-    user_with_highest_bid = Bid.objects.values_list("listing_id", flat=True).filter(bid=highest_bid) # Bid.objects.values_list("bid", flat=True).get(item_id=highest_bid)
-    print("User with Highest Bid:", user_with_highest_bid)
+
+    # Get the user who placed the highest bid.
+    highest_bidder_id = highest_bid.placedBy_id
+    print("Highest Bidder ID:", highest_bidder_id)
+
+    # user_with_highest_bid = Bid.objects.values_list("listing_id", flat=True).filter(bid=highest_bid) # Bid.objects.values_list("bid", flat=True).get(item_id=highest_bid)
+    # print("User with Highest Bid:", user_with_highest_bid)
     # highest_bidder = user_with_highest_bid.values_list("placedBy_id", flat=True).values()
-    highest_bidder_id = user_with_highest_bid.values("placedBy")[0]["placedBy"]
-    print("Highest Bidder:", highest_bidder_id)
+    # highest_bidder_id = user_with_highest_bid.values("placedBy")[0]["placedBy"]
+    # print("Highest Bidder:", highest_bidder_id)
     
     context = {
         "listing_data": listing_data,
@@ -422,31 +436,41 @@ def bid(request, id):
 
             listing_data = Listing.objects.filter(pk=listing_id)
             
-            # return render(request, "auctions/listing.html", {
-            #     "listing data": listing_data,
-                # "bid_success_message": "Bid was successful." # Going to route /bid/5 but there's no bid.html????????
-            # }) 
+            return render(request, "auctions/listing.html", {
+                "listing data": listing_data,
+                "bid_success_message": "Bid was successful.", # Going to route /bid/5 but there's no bid.html????????
+                "bid_placed": True
+            }) 
 
+            """
+            # https://stackoverflow.com/questions/75338256/is-there-a-way-to-add-context-to-django-reverse-function
+            # "reverse() only produces a string: a path."
             return HttpResponseRedirect(reverse("listing", args=(listing_id,)), {
                 "listing data": listing_data,
                 "bid_success_message": "Bid was successful." # No message displayed.
             })
+            """
 
         else:
 
             listing_data = Listing.objects.filter(pk=listing_id)
 
-            # return render(request, "auctions/listing.html", {
-            #     "listing data": listing_data,
-            #     # To display the message below, check on the server with a try / except.
-            #     "bid_error_message": "Bid error: Your bid was invalid or it must be greater than the starting or current bid." # ValueError at /bid/3 - invalid literal for int() with base 10: '-0.03'
-            # }) 
+            return render(request, "auctions/listing.html", {
+                "listing data": listing_data,
+                # To display the message below, check on the server with a try / except.
+                "bid_error_message": "Bid error: Your bid was invalid or it must be greater than the starting or current bid.", # ValueError at /bid/3 - invalid literal for int() with base 10: '-0.03'
+                "bid_placed": False
+            }) 
 
+            """
+            # https://stackoverflow.com/questions/75338256/is-there-a-way-to-add-context-to-django-reverse-function
+            # "reverse() only produces a string: a path."
             return HttpResponseRedirect(reverse("listing", args=(listing_id,)), {
                 "listing data": listing_data,
                 # To display the message below, check on the server with a try / except.
                 "bid_error_message": "Bid error: Your bid was invalid or it must be greater than the starting or current bid." # No message displayed.
             })
+            """
         
     # Redirect to listing.html
     return HttpResponseRedirect(reverse("listing", args=(listing_id,)))

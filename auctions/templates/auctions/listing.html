@@ -14,13 +14,19 @@ Listing Page:
 {% block body %}
 
     <p style="color: green;">{{ new_listing_message }}</p>
-    <p style="color: green;">{{ bid_success_message }}</p>
-    <p style="color: red;">{{ bid_error_message }}</p>
-
+    
     <p style="color: green;">{{ close_message }}</p>
 
+    
+        {% if bid_placed %}
+            <p style="color: green;">{{ bid_success_message }}</p>
+        {% else %}
+            <p style="color: red;">{{ bid_error_message }}</p>
+        {% endif %}
+    
+
     <!-- Alert user is they won the item by having the highest bid. -->
-    {% if listing_is_open and user.id == highest_bidder_id %}        
+    {% if not listing_is_open and user.id == highest_bidder_id %}        
         <p style="color: green;">You had the winning bid!!!</p>
     {% endif %}
 
@@ -95,7 +101,7 @@ Listing Page:
             <li>Bid: {{ data.bid }}</li>
             <li>Category: {{ data.category }}</li>
             <li>Image: {{ data.image }}</li>
-            <li>Listed by: {{ data.createdBy }}</li>
+            <li>Listed by: {{ data.createdBy }} / {{ data.createdBy_id }} </li>
         {% endfor %}
 
     </ul>
