@@ -4,7 +4,7 @@
 
 
 from django import forms
-from .models import Listing, Bid
+from .models import Listing, Bid, Comment
 
 
 # Create a ModelForm.
@@ -30,4 +30,14 @@ class CreateBidForm(forms.ModelForm):
         widgets = {
             "listing": forms.HiddenInput(),
             "placedBy": forms.HiddenInput()  
+        }
+
+
+class CreateCommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = "__all__"
+        widgets = {
+            "listing": forms.HiddenInput(),
+            "author": forms.HiddenInput()  
         }

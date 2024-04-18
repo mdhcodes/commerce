@@ -20,5 +20,7 @@ urlpatterns = [
     # Add path to place a bid.
     path("bid/<int:id>", views.bid, name="bid"),
     # Add path to close a listing or auction.
-    path("close/<int:id>", views.close, name="close")
+    path("close/<int:id>", views.close, name="close"),
+    # Add path to add a comment.
+    path("comment/<int:id>", views.comment, name="comment")
 ]

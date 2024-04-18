@@ -4,9 +4,9 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 
-from .models import User, Listing, Bid
+from .models import User, Listing, Bid, Comment
 # Use Django to create the new listing form from the model.
-from .forms import CreateListingForm, CreateBidForm
+from .forms import CreateListingForm, CreateBidForm, CreateCommentForm
 
 # Use Decimal() to convert the bid input by the user as a string to a decimal.
 from decimal import Decimal
@@ -220,6 +220,9 @@ def listing(request, id):
 
     # Search Bid table for the item_id with the highest_bid and find the user who placed that bid.
 
+    # Error for new listings - Bid matching query does not exist. The Listing and Bid table bid field are not connected. No bid has been placed yet but the program is looking for that information.
+
+    # If Bid.bid does not exist - instructions OR make bid a foreign key. 
     all_bids_for_item = Bid.objects.filter(listing_id=item_id)
     # print("All Bids for Item:", all_bids_for_item)
 
@@ -231,12 +234,13 @@ def listing(request, id):
     highest_bidder_id = highest_bid.placedBy_id
     print("Highest Bidder ID:", highest_bidder_id)
 
-    # user_with_highest_bid = Bid.objects.values_list("listing_id", flat=True).filter(bid=highest_bid) # Bid.objects.values_list("bid", flat=True).get(item_id=highest_bid)
-    # print("User with Highest Bid:", user_with_highest_bid)
-    # highest_bidder = user_with_highest_bid.values_list("placedBy_id", flat=True).values()
-    # highest_bidder_id = user_with_highest_bid.values("placedBy")[0]["placedBy"]
-    # print("Highest Bidder:", highest_bidder_id)
-    
+    # Add comment form.
+    comment_form = CreateCommentForm()
+
+    # Get all comments connected to this listing/item_id.
+    all_comments = Comment.objects.filter(listing=item_id)
+    print("All Comments:", all_comments)
+        
     context = {
         "listing_data": listing_data,
         "item_id": item_id,
@@ -247,7 +251,9 @@ def listing(request, id):
         # "form": form
         "creator": creator,
         "listing_is_open": listing_is_open,
-        "highest_bidder_id": highest_bidder_id
+        "highest_bidder_id": highest_bidder_id,
+        "comment_form": comment_form,
+        "all_comments": all_comments
     }
     
     return render(request, "auctions/listing.html", context)
@@ -582,3 +588,32 @@ def close(request, id):
     })
 
 
+
+# Add Comments
+# Authenticated users may add comments to the listing page. The listing page should display all comments that have been made on the listing.
+
+def comment(request, id):
+
+    # Get listing id
+    listing_id = id
+
+    # Get the user
+    user_name = request.user
+    
+    listing = Listing.objects.get(pk=listing_id)
+    print("Listing:", listing) # Returns title and category
+    
+    # Capture the comment from the request.
+    new_comment = CreateCommentForm(request.POST)
+    comment = new_comment["comment"].value()
+    print("Comment:", comment)
+  
+    add_comment = Comment(
+        comment=comment,
+        listing=listing,
+        author=user_name
+    )
+
+    add_comment.save()
+
+    return HttpResponseRedirect(reverse('listing', args=(listing_id,)))

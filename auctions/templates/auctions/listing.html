@@ -106,4 +106,27 @@ Listing Page:
 
     </ul>
 
+    {% if user.is_authenticated %}
+        <!-- The user may add a comment. -->
+        <form action="{% url 'comment' item_id %}" method="post">
+            {% csrf_token %}
+            {{ comment_form.as_p }} 
+            <button type="submit">Save Comment</button>
+        </form>
+
+    {% endif %}  
+
+    <h4>All Comments</h4>
+
+    <ol>
+
+        {% for comment in all_comments %}
+            <li> 
+                {{ comment.comment }} 
+                <p> Shared by: {{comment.author}} </p>
+            </li>
+        {% endfor %}
+
+    </ol>
+
 {% endblock %}

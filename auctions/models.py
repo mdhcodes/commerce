@@ -92,3 +92,12 @@ class Bid(models.Model):
     
     def __str__(self):
         return f"{self.id} / {self.listing} / {self.bid}"
+
+
+class Comment(models.Model):
+    comment = models.TextField()
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="listing_comment")
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user_comment")
+
+    def __str__(self):
+        return f"{self.author} / {self.listing}"
