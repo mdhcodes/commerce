@@ -22,5 +22,9 @@ urlpatterns = [
     # Add path to close a listing or auction.
     path("close/<int:id>", views.close, name="close"),
     # Add path to add a comment.
-    path("comment/<int:id>", views.comment, name="comment")
+    path("comment/<int:id>", views.comment, name="comment"),
+    # Add path to categories.
+    path("categories", views.categories, name="categories"),
+    # Add path to categories.
+    path("category/<str:name>", views.category, name="category")
 ]

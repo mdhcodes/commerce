@@ -617,3 +617,40 @@ def comment(request, id):
     add_comment.save()
 
     return HttpResponseRedirect(reverse('listing', args=(listing_id,)))
+
+
+"""
+Categories: Users should be able to visit a page that displays a list of all listing categories. 
+Clicking on the name of any category should take the user to a page that displays all of the active listings in that category.
+"""
+
+def categories(request):
+
+    # https://stackoverflow.com/questions/5877306/remove-duplicates-in-a-django-query
+    # Get all data in the specified table column without repeating values.
+    all_categories = Listing.objects.values_list("category", flat=True).distinct()
+    print("All Cateogires", all_categories)
+
+    context = {
+        "all_categories": all_categories
+    }
+
+    return render(request, "auctions/categories.html", context)
+
+
+def category(request, name):
+    # List all items in this category.
+
+    category = name
+    print("Category:", category)
+
+    # Get all listings with the specified category.
+    all_category_items = Listing.objects.filter(category=category)
+    print("All Category Items:", all_category_items)
+    
+    context = {
+        "all_category_items": all_category_items,
+        "category": category
+    }
+
+    return render(request, "auctions/category.html", context)
