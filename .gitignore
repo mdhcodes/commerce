@@ -12,7 +12,7 @@ db.sqlite3-journal
 media
 commerce/settings.py
 auctions/__pycache__
-migrations/__pycache__
+auctions/migrations/__pycache__
 
 # If your build process includes running collectstatic, then you probably don't need or want to include staticfiles/
 # in your Git repository. Update and uncomment the following line accordingly.
