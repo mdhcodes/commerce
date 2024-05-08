@@ -1,4 +1,5 @@
 {% extends "auctions/layout.html" %}
+{% load static %}
 
 {% comment %} 
 Listing Page: 
@@ -100,7 +101,7 @@ Listing Page:
             <li>Description: {{ data.description }}</li>
             <li>Bid: {{ data.bid }}</li>
             <li>Category: {{ data.category }}</li>
-            <li>Image: {{ data.image }}</li>
+            <li>Image: <img src="/media/{{ data.image }}"></li> {% comment %} ???? Image not displayed for /listing/images/wave.png ???? Solution - https://stackoverflow.com/questions/28678769/remove-a-part-of-url-address-in-django {% endcomment %}
             <li>Listed by: {{ data.createdBy }} / {{ data.createdBy_id }} </li>
         {% endfor %}
 

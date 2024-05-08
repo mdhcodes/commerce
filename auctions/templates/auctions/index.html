@@ -1,4 +1,5 @@
 {% extends "auctions/layout.html" %}
+{% load static %}
 
 {% block body %}
     <h2>Active Listings</h2>
@@ -11,21 +12,21 @@
     For each active listing, the page will display the title, description, current price, category, and photo (if one exists for the listing).
     {% endcomment %}
 
-    <ul>        
-        {% for listing in all_listings %}
-
+     
+    {% for listing in all_listings %}
+        <ul class="list-group listing-details">
             <!-- Listing Page: Clicking on a listing should take users to a page specific to that listing.  -->            
-            <li><a href="{% url 'listing' listing.id %}">Title: {{ listing.title }}</a></li>
-            <li>Description: {{ listing.description }}</li>
-            <li>Bid: {{ listing.bid }}</li>
-            <li>Category: {{ listing.category }}</li>
-            <li>Created By: {{ listing.createdBy }} / {{ listing.createdBy_id }} </li>
-            <li><img src="{{ listing.image }}"></li>{% comment %} Empty square image holder displayed {% endcomment %}
-            {% comment %}<li>{{ listing.image.url }}</li>{% endcomment %}{% comment %} VALUE ERROR - NO FILE ASSOCIATED WITH IT {% endcomment %}
-            {% comment %}<li><img src="{{ listing.image.url }}"></li>{% endcomment %}{% comment %} VALUE ERROR - NO FILE ASSOCIATED WITH IT {% endcomment %}
-
-        {% endfor %}
-    </ul>
+            <li class="list-group-item"><a href="{% url 'listing' listing.id %}">Title: {{ listing.title }}</a></li>
+            <li class="list-group-item">Description: {{ listing.description }}</li>
+            <li class="list-group-item">Bid: {{ listing.bid }}</li>
+            <li class="list-group-item">Category: {{ listing.category }}</li>
+            <li class="list-group-item">Created By: {{ listing.createdBy }} / {{ listing.createdBy_id }} </li>
+            <li class="list-group-item"><img src="media/{{ listing.image }}"></li>{% comment %} Empty square image holder displayed {% endcomment %}
+            {% comment %}<li class="list-group-item">{{ listing.image.url }}</li>{% endcomment %}{% comment %} VALUE ERROR - NO FILE ASSOCIATED WITH IT {% endcomment %}
+            {% comment %}<li class="list-group-item"><img src="{{ listing.image.url }}"></li>{% endcomment %}{% comment %} VALUE ERROR - NO FILE ASSOCIATED WITH IT {% endcomment %}
+        </ul>
+    {% endfor %}
+    
 
 
 {% endblock %}

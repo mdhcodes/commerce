@@ -27,6 +27,8 @@ urlpatterns = [
     path("", include("auctions.urls"))
 ]
 
+# https://stackoverflow.com/questions/49096239/django-imagefield-not-uploading-the-image
+# Add path to upload images.
 
 # https://www.geeksforgeeks.org/python-uploading-images-in-django/
 if settings.DEBUG:

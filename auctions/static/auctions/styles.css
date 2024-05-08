@@ -1,3 +1,13 @@
 body {
     padding: 10px;
 }
+
+.listing-details {
+    border: thin solid grey;
+    margin-bottom: 1em;
+    border-radius: 5px;
+}
+
+.category-details {
+    margin-bottom: 1em;
+}

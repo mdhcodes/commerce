@@ -1,4 +1,5 @@
 {% extends "auctions/layout.html" %}
+{% load static %}
 
 {% block body %}
     <h2>Watchlist Listings</h2>
@@ -8,14 +9,14 @@
     Clicking on any of the listings takes the user to that listing’s page.
     {% endcomment %}
 
-    <ul>        
+    <ol>        
         {% for listing in watchList %}
 
             <!-- Clicking on a listing should take users to that listing's page.  -->            
             <li><a href="{% url 'listing' listing.id %}">Title: {{ listing.title }}</a></li>
             
         {% endfor %} 
-    </ul>
+    </ol>
 
 
 {% endblock %}

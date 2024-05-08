@@ -4,13 +4,17 @@
 
     <h2>Categories</h2>
 
-    <ul>
-
+    {% comment %} <ul class="list-group"> {% endcomment %}
+    
         {% for category in all_categories %}
+        <ul class="list-group category-details">
             {% comment %} <li>{{ category }}</li> {% endcomment %}
-            <li><a href="{% url 'category' category %}">{{ category }}</a></li>
+            <li class="list-group-item"><a href="{% url 'category' category %}">{{ category }}</a></li>
+        </ul>
         {% endfor %}
 
-    </ul>
+    {% comment %} </ul> {% endcomment %}
+
+    
 
 {% endblock %}

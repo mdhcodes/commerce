@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from .models import User, Listing, Bid, Comment
-# Use Django to create the new listing form from the model.
+# Use Django to create the forms from the model.
 from .forms import CreateListingForm, CreateBidForm, CreateCommentForm
 
 # Use Decimal() to convert the bid input by the user as a string to a decimal.
@@ -106,7 +106,7 @@ def new_listing(request):
         bid = listing_data["bid"].value()
         category = listing_data["category"].value()
         # https://pylessons.com/django-images # REVIEW THIS TUTORIAL!!!!!
-        # image
+        image = listing_data["image"].value()
         user = user_name
 
         # Save the listing_data form values to the auctions database.
@@ -118,7 +118,7 @@ def new_listing(request):
                 # https://stackoverflow.com/questions/72062094/i-got-decimal-invalidoperation-class-decimal-conversionsyntax
                 bid=Decimal(bid), 
                 category=category,
-                # image
+                image=image,
                 createdBy=user
                 )        
         
