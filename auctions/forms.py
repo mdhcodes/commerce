@@ -24,7 +24,7 @@ class CreateListingForm(forms.ModelForm):
             "description": forms.Textarea(attrs={'class': 'form-control'}),
             "category": forms.TextInput(attrs={'class': 'form-control'}),
             # "image": forms.ImageField(),
-            # "Bid": forms.DecimalField(),     
+            "Bid": forms.NumberInput(attrs={'class': 'form-control'}),     
             "createdBy": forms.HiddenInput(),
             "watchlist": forms.HiddenInput(),
             "is_open": forms.HiddenInput()
@@ -37,10 +37,14 @@ class CreateBidForm(forms.ModelForm):
         model = Bid
         fields = "__all__"
         widgets = {
-            # "bid": forms.DecimalField(attrs={'class': 'form-control'}),
+            # https://stackoverflow.com/questions/31691041/how-do-you-make-django-decimal-field-widgets-numberinput-increment-differently
+            "bid": forms.NumberInput(attrs={'class': 'form-control'}),
+            "bid": forms.NumberInput(attrs={'min': '0'}), # Not rendered as expected.
+            "bid": forms.NumberInput(attrs={'placeholder': 'Enter Bid'}),
             "listing": forms.HiddenInput(),
             "placedBy": forms.HiddenInput()  
         }
+        # <input type="number" min="0" name="placeBid" placeholder="Bid">
 
 
 class CreateCommentForm(forms.ModelForm):
@@ -48,7 +52,11 @@ class CreateCommentForm(forms.ModelForm):
         model = Comment
         fields = "__all__"
         widgets = {
-            # "comment": forms.Textarea(attrs={'class': 'form-control'}),
+            "comment": forms.Textarea(attrs={'class': 'form-control'}),
             "listing": forms.HiddenInput(),
             "author": forms.HiddenInput()  
+        }
+        # https://stackoverflow.com/questions/36905060/how-can-i-change-the-modelform-label-and-give-it-a-custom-name
+        labels = {
+            "comment": "Share a Comment:"
         }

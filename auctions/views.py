@@ -96,18 +96,27 @@ def new_listing(request):
         # Image data will be stored in the request.FILES object.
         # https://docs.djangoproject.com/en/5.0/ref/forms/api/#binding-uploaded-files-to-a-form
         listing_data = CreateListingForm(request.POST, request.FILES)
+        print('Listing Data:', listing_data)
 
+        # if listing_data.is_valid(): # ValueError at /new_listing - The view auctions.views.new_listing didn't return an HttpResponse object. It returned None instead.
+            
         # Get user from the POST request.
         user_name = request.user
-     
+    
         # Capture the new listing_data form values.
         title = listing_data["title"].value()
         description = listing_data["description"].value()
         bid = listing_data["bid"].value()
         category = listing_data["category"].value()
         # https://pylessons.com/django-images # REVIEW THIS TUTORIAL!!!!!
-        image = listing_data["image"].value()
+        # image = listing_data["image"] # Don't know how to get image from listing data.
+        
         user = user_name
+
+        # https://docs.djangoproject.com/en/5.0/topics/http/file-uploads/
+        # https://docs.djangoproject.com/en/5.0/ref/forms/api/#binding-uploaded-files
+        image = request.FILES["image"] # WORKS!!!!!!!!
+        print('Image:', image)
 
         # Save the listing_data form values to the auctions database.
         # https://docs.djangoproject.com/en/5.0/topics/db/queries/
@@ -137,12 +146,13 @@ def new_listing(request):
             "new_listing_message": "Your new listing was saved."
         })
              
-    else:
-        # GET request
-        return render(request, "auctions/new_listing.html", {
-            "title": title,
-            "form": CreateListingForm()
-        })
+    # else:
+
+    # GET request
+    return render(request, "auctions/new_listing.html", {
+        "title": title,
+        "form": CreateListingForm()
+    })
     
 
 """
@@ -224,15 +234,24 @@ def listing(request, id):
 
     # If Bid.bid does not exist - instructions OR make bid a foreign key. 
     all_bids_for_item = Bid.objects.filter(listing_id=item_id)
-    # print("All Bids for Item:", all_bids_for_item)
+    print("All Bids for Item:", all_bids_for_item)
 
-    # Get the bid that equals the highest bid.
-    highest_bid = all_bids_for_item.get(bid=highest_bid_amount)
-    print("Highest Bid:", highest_bid)
+    # Check to determine if all_bids_for_item is an empty QuerySet.
+    # https://stackoverflow.com/questions/1387727/checking-for-empty-queryset-in-django
+    if not all_bids_for_item:
+        # This is the Starting Bid - Highest bidder is set to 0 which is no user's id.
+        highest_bidder_id = 0        
+    else: 
+        # Get the bid that equals the highest bid.
+        highest_bid = all_bids_for_item.get(bid=highest_bid_amount)
+        print("Highest Bid:", highest_bid)
 
-    # Get the user who placed the highest bid.
-    highest_bidder_id = highest_bid.placedBy_id
-    print("Highest Bidder ID:", highest_bidder_id)
+        # Get the user who placed the highest bid.
+        highest_bidder_id = highest_bid.placedBy_id
+        print("Highest Bidder ID:", highest_bidder_id)
+
+    # Add bid form.
+    bid_form = CreateBidForm()
 
     # Add comment form.
     comment_form = CreateCommentForm()
@@ -248,7 +267,7 @@ def listing(request, id):
         "bid": last_bid,
         "total_bids": total_bids,
         "starting_bid": starting_bid,
-        # "form": form
+        "bid_form": bid_form,
         "creator": creator,
         "listing_is_open": listing_is_open,
         "highest_bidder_id": highest_bidder_id,
@@ -346,6 +365,8 @@ def bid(request, id):
     # There are multiple forms on the listing page and both are being submitted when one button is clicked. Error is displayed requesting other form.
 
     listing_id = id
+    print('Listing id:', listing_id, type(listing_id))
+
     user_name = request.user
     # user_id = request.user.id
 
@@ -354,46 +375,28 @@ def bid(request, id):
 
     # If POST request and the arguments for add/remove from watchlist are empty OR select only the bid form OR prevent the add/remove from watchlist button
     if request.method == "POST": # and (not add_to_watchlist or not remove_from_watchlist):
-
-        """
-        # print("POST Data:", request.POST)
-        # print("BID POST:", request.POST.get("placeBid")) # Returns user_bid
-
-        # print("Request Body:", request.body)
-
-        
-        # <input type="submit" value="Place Bid"> - This HTML caused the following output with the key as '200' and the value as 'Place Bid'. QueryDict below:
-        # request.POST = <QueryDict: {'csrfToken': ['djwi5iyo...'], 'bid': ['200', 'Place Bid'], 'listing': [''], 'placedBy': ['']}>
-        # Changed to a button and received the following data: <QueryDict: {'csrfToken': ['djwi5iyo...'], 'bid': ['200'], 'listing': [''], 'placedBy': ['']}>
-        
        
-        # Store the user data in a variable called bid_amount.
-        # bid_amount = CreateBidForm(request.POST) # NoReverseMatch at /bid/3 - Reverse for 'add_to_watchlist' with arguments '('',)' not found. 1 pattern(s) tried: ['add_to_watchlist/(?P<id>[0-9]+)\\Z']
-        # The above code grabs the empty arguments from add to/remove from watchlist and wants to execute that route as well.
+        print('Request:', request)
 
-        # !!!!!! # When this form is submitted, it also expects an argument to the add to/remove from watchlist path. Will hardcode form in HTML for now. !!!!!!
-        """        
-
-        # print("POST Data:", request.POST) # Returns <QueryDict: {'csrfToken': ['djwi5iyo...'], 'placeBid': ['10']}> - Result from input field in HTML.
-        # print("POST Data:", request.POST) # Returns <QueryDict: {'csrfToken': ['djwi5iyo...'], 'placeBid': ['10', 'user_bid']}> - Result with a button.
-
-        # Error NoReverseMatch... 'add_to_watchlist' with arguments not found persists with hardcoded form. 
+        # Error NoReverseMatch... Reverse for 'comment' with arguments '('',)' not found. 1 pattern(s) tried: ['comment/(?P<id>[0-9]+)\\Z']
         
         """
         THE LOGIC TO PLACE A BID WORKS WITH THE DJANGO FORM AND THE HARDCODED FORM. THE DATABASES ARE UPDATED WHEN CONDITIONS ARE MET. HOWEVER, THE PROGRAM CRASHES BECAUSE IT
-        IS ALSO EXPECTING AN ARGUMENT FOR THE ADD_TO/REMOVE_FROM_WATCHLIST PATH.
+        IS ALSO EXPECTING AN ARGUMENT FOR THE COMMENT PATH. BEFORE IT WANTED THE ADD_TO/REMOVE_FROM_WATCHLIST PATH.
+
+        !!!!!! TRY WITH JAVASCRIPT !!!!!!
         """
         
         print("Request Body:", request.body) # Returns b'csrfToken=djwi5iyo...&placeBid=10&placeBid=user_bid' - Result with a button with value="user_bid".
 
-        bid_amount = request.POST['placeBid']
+        # Bid is placed but I get the above error NoReverseMatch. 
+        bid_amount = Decimal(request.POST['bid']) # Name from input element created by bid_form.
 
         print("Bid Amount:", bid_amount)
 
         # Capture the bid_amount value.
-        # current_bid = bid_amount["bid"].value() # Returns "Place Bid" not 200
-        current_bid = Decimal(bid_amount)
-        print("Current Bid:", current_bid) 
+        current_bid = bid_amount
+        print("Current Bid:", current_bid, type(current_bid)) 
         
         last_bid = Listing.objects.values_list("bid", flat=True).get(pk=listing_id) # Returns bid for specified item or listing.
         print("Last Bid:", last_bid) 
@@ -605,6 +608,7 @@ def comment(request, id):
     
     # Capture the comment from the request.
     new_comment = CreateCommentForm(request.POST)
+    # print('New Comment:', new_comment)
     comment = new_comment["comment"].value()
     print("Comment:", comment)
   

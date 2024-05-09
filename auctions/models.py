@@ -38,7 +38,7 @@ class Listing(models.Model):
     # ImageField requires the Pillow library. # https://pillow.readthedocs.io/en/latest/installation/basic-installation.html
     # https://www.geeksforgeeks.org/imagefield-django-models/
     # image = models.ImageField(upload_to=None, height_field=None, width_field=None, max_length=100)
-    image = models.ImageField(upload_to="images/") # blank=True - field may be empty. # Image files are uploaded to the media/images directory through the admin account. However, image files are not uploaded (to this directory) from the user.
+    image = models.ImageField(upload_to="images/") #, null=True, blank=True) # blank=True - field may be empty. # Image files are uploaded to the media/images directory through the admin account. However, image files are not uploaded (to this directory) from the user.
 
     # https://cs50.harvard.edu/web/2020/projects/2/commerce/#specification
     # CS50 specifications indicate that "users should also optionally be able to provide a URL for an image for the listing.
@@ -81,6 +81,9 @@ class Bid(models.Model):
     # https://stackoverflow.com/questions/12384460/allow-only-positive-decimal-numbers # Ensure bids are never negative numbers with MinValueValidator.
     bid = models.DecimalField(max_digits=19, decimal_places=2, validators=[MinValueValidator(Decimal("0.01"))]) #, default=00.00) # "Stores numbers up to one billion with a resolution of 10 decimal places."
  
+    # Error for new listings when listing.html is requested - Bid matching query does not exist. The Listing and Bid table bid field are not connected. No bid has been placed yet but the program is looking for that information.
+    # bid = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name="bids")
+
     # https://www.geeksforgeeks.org/python-relational-fields-in-django-models/?ref=gcse
     # Listing is a many-to-one relationship.
     # A listing can have multiple bids but a bid can't have multiple listings. If a listing is deleted, all bids posted for that listing are deleted as well.

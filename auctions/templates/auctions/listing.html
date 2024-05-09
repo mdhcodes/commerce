@@ -77,32 +77,36 @@ Listing Page:
             {% endif %}
 
             <p>Total bid(s): {{ total_bids }} Your bid will be the current bid.</p>
-
+              
             <!-- The user may place a bid. -->
-            <form action="{% url 'bid' item_id %}" method="post">
+            {% comment %} 
+            https://docs.djangoproject.com/en/5.0/topics/http/file-uploads/ 
+            https://docs.djangoproject.com/en/5.0/ref/forms/api/#binding-uploaded-files
+            {% endcomment %}
+            <form action="{% url 'bid' item_id %}" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
-                {% comment %} {{ form.as_p }}                 {% endcomment %}
+                {{ bid_form.as_p }}                
                 {% comment %} <input type="submit" value="Place Bid"> {% endcomment %} 
-                <input type="number" min="0" name="placeBid" placeholder="Bid">
+                {% comment %} <input type="number" min="0" name="placeBid" placeholder="Bid"> {% endcomment %} {% comment %} Last in place without bid_form. {% endcomment %}
                 {% comment %} <input type="submit" value="Place Bid"> {% endcomment %}
                 {% comment %} <button type="submit" name="placeBid" id="bid" value="user_bid">Place Bid</button> {% endcomment %}
-                <button type="submit">Place Bid</button>
+                <button type="submit">Place Bid</button> 
             </form>
 
         {% endif %}
 
     </div>
 
-    <ul>
+    <ul class="list-group">
 
         {% for data in listing_data %}
             {% comment %} Users are able to view all details about the listing including the current price. {% endcomment %}
-            <li>Listing: {{ data.title }}</li>
-            <li>Description: {{ data.description }}</li>
-            <li>Bid: {{ data.bid }}</li>
-            <li>Category: {{ data.category }}</li>
-            <li>Image: <img src="/media/{{ data.image }}"></li> {% comment %} ???? Image not displayed for /listing/images/wave.png ???? Solution - https://stackoverflow.com/questions/28678769/remove-a-part-of-url-address-in-django {% endcomment %}
-            <li>Listed by: {{ data.createdBy }} / {{ data.createdBy_id }} </li>
+            <li class="list-group-item">Listing: {{ data.title }}</li>
+            <li class="list-group-item">Description: {{ data.description }}</li>
+            <li class="list-group-item">Bid: {{ data.bid }}</li>
+            <li class="list-group-item">Category: {{ data.category }}</li>
+            <li class="list-group-item">Image: <img src="/media/{{ data.image }}"></li> {% comment %} ???? Image not displayed for /listing/images/wave.png ???? Solution - https://stackoverflow.com/questions/28678769/remove-a-part-of-url-address-in-django {% endcomment %}
+            <li class="list-group-item">Listed by: {{ data.createdBy }} / {{ data.createdBy_id }} </li>
         {% endfor %}
 
     </ul>
@@ -119,10 +123,10 @@ Listing Page:
 
     <h4>All Comments</h4>
 
-    <ol>
+    <ol class="list-group">
 
         {% for comment in all_comments %}
-            <li> 
+            <li class="list-group-item"> 
                 {{ comment.comment }} 
                 <p> Shared by: {{comment.author}} </p>
             </li>
